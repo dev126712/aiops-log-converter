@@ -15,10 +15,4 @@ run:
 		-v $(shell pwd)/$(LOG_NAME):/app/$(LOG_NAME) \
 		$(IMAGE_NAME)
 
-tag:
-	docker tag $(IMAGE_NAME):$(VERSION) $(DOCKERHUB_USERNAME)/$(IMAGE_NAME):$(VERSION)
-
-push:
-	docker push $(DOCKERHUB_USERNAME)/$(IMAGE_NAME):$(VERSION)
-
-analyze: build run tag push
+analyze: build run
