@@ -49,5 +49,8 @@ docker run --rm \
     -v $(pwd)/raw_logs.txt:/app/raw_logs.txt \
     ai-log-analyzer
 ````
+Test
+Runs 3  test for 3 trype of log
+![alt text](https://github.com/dev126712/aiops-log-converter/blob/0f467573b35fa422906cce0f4a58fc150532b582/image.png)
 
 Author: Alexandre St-fort
