@@ -24,13 +24,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          [cite_start]pip install -r requirements.txt [cite: 4]
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run AI-Log-Analyzer Test
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LOG_FILE_NAME: tests/logs/${{ matrix.log_file }}
-          # Use a mock or sandbox Slack URL for testing
           SLACK_URL: ${{ secrets.TEST_SLACK_URL }}
         run: |
           python aiops_log_converter.py
