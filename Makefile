@@ -1,19 +1,24 @@
 # Variables
 IMAGE_NAME = ai-log-analyzer
-LOG_NAME ?= raw_logs.txt
+LOG_NAME ?= your-app.log
+DOCKERHUB_USERNAME = your_dockerhub_username
+VERSION = 1.0.0
 
 .PHONY: build run analyze
 
-# 1. Build the image
 build:
-	docker build -t $(IMAGE_NAME) .
+	docker build -t $(IMAGE_NAME):$(VERSION) .
 
-# 2. Run the container (Requires LOG_NAME to be passed)
 run:
 	docker run --rm \
 		--env-file .env \
 		-v $(shell pwd)/$(LOG_NAME):/app/$(LOG_NAME) \
 		$(IMAGE_NAME)
 
-# 3. All-in-one command
-analyze: build run
+tag:
+	docker tag $(IMAGE_NAME):$(VERSION) $(DOCKERHUB_USERNAME)/$(IMAGE_NAME):$(VERSION)
+
+push:
+	docker push $(DOCKERHUB_USERNAME)/$(IMAGE_NAME):$(VERSION)
+
+analyze: build run tag push
