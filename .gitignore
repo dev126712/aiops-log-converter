@@ -1,0 +1,13 @@
+# Environments
+.venv/
+venv/
+ENV/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local env files
+.env
