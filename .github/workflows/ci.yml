@@ -22,4 +22,4 @@ jobs:
           push: true
           tags: 
           load: true
-          outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME_DATABASE }}.tar
+          outputs: type=docker,dest=/tmp/${{  }}.tar
