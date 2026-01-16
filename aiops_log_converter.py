@@ -1,6 +1,6 @@
 ####################
 #
-# AI-Log-Analyzer
+# AI log converter & Anomaly Detector
 # Description: Analyzes system logs to detect anomalies using Isolation Forest.
 # Author: Alexandre St-fort
 # Last modified: 01/15/26
