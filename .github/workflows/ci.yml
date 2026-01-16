@@ -1,25 +1,50 @@
-name: AIOps Lon Converter & Anomaly Detection
+name: CI Log Validation
+
 on:
   push:
-    branches:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  test-logs:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    strategy:
+      matrix:
+        log_file: [type1.log, type2.log, type3.log]
+    
     steps:
-      - name: checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: set up docker
-        uses: docker/setup-buildx-action@v2
-  
-      - name: Build the Docker images
-        uses: docker/build-push-action@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          context: .
-          push: true
-          tags: 
-          load: true
-          outputs: type=docker,dest=/tmp/${{  }}.tar
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          [cite_start]pip install -r requirements.txt [cite: 4]
+
+      - name: Run AI-Log-Analyzer Test
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LOG_FILE_NAME: tests/logs/${{ matrix.log_file }}
+          # Use a mock or sandbox Slack URL for testing
+          SLACK_URL: ${{ secrets.TEST_SLACK_URL }}
+        run: |
+          python aiops_log_converter.py
+
+  build-and-push:
+    needs: test-logs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          [cite_start]make build [cite: 23]
+      
+      # Add your Docker Hub/GHCR login and push steps here
