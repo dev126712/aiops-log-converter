@@ -1,0 +1,25 @@
+name: AIOps Lon Converter & Anomaly Detection
+on:
+  push:
+    branches:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: set up docker
+        uses: docker/setup-buildx-action@v2
+  
+      - name: Build the Docker images
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: 
+          load: true
+          outputs: type=docker,dest=/tmp/${{  }}.tar
