@@ -32,12 +32,12 @@ Deploy and Run (With make)
 make analyze
 ````
 
-Build(Docker):
+Build (Docker):
 ````
 docker build -t ai-log-analyzer .
 ````
 
-Run(Docker):
+Run (Docker):
 ````
 docker run --rm \
     --env-file .env \
