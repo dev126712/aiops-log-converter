@@ -18,11 +18,11 @@ Make sure to change the log file name in .env and Makefile
 ````
 GEMINI_API_KEY=your_api_key_here
 SLACK_URL=your_slack_webhook_url_here
-LOG_FILE_NAME=app.log
+LOG_FILE_NAME=your-app.log
 ````
 Makefile
 ````
-LOG_NAME ?= raw_logs.txt
+LOG_NAME ?= your-app.log
 ````
 
 Local Development (venv):
