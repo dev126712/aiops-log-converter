@@ -39,12 +39,26 @@ jobs:
     needs: test-logs
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      IMAGE_NAME: ai-log-analyzer
+      VERSION: 1.0.0
+      DOCKERHUB_USERNAME: dev126712
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+
       - name: Build Docker Image
         run: |
-          [cite_start]make build [cite: 23]
-      
-      # Add your Docker Hub/GHCR login and push steps here
+          docker build -t $(IMAGE_NAME):$(VERSION) .
+
+      - name: Tag and push
+        run: |
+            docker tag ${{ env.IMAGE_NAME }}:${{ env.VERSION }} ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+            docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
