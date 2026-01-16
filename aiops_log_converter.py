@@ -56,21 +56,17 @@ def convert_logs_with_ai(input_file):
 
     # System prompt defines the rules for the AI
         prompt = f"""
-        You are a log normalization assistant. Convert the following raw logs into a JSON Line format.
+        
+        You are a log normalization expert. Convert the following CSV-style logs into JSON Lines.
         Each line MUST be a valid JSON object with the keys: "time", "level", and "msg".
 
-        CRITICAL MAPPING RULES for "level":
-        - If the log is TRACE/DEBUG: use 10 or 20
-        - If the log is INFO/SUCCESS/OK: use 30
-        - If the log is WARNING/NOTICE: use 40
-        - If the log is ERROR/FAILURE/CRITICAL: use 50
-        - If the log is FATAL/EMERGENCY: use 60
-        1. The input logs have Month and Date but NO YEAR. Please assume the year is 2005 
-        and format the "time" as 'YYYY-MM-DD HH:MM:SS'.
-        2. Map the "Level" column to these numbers:
-        - notice/combo/info -> 30
-        - error/alert -> 50
-        - failure -> 50
+        STRICT RULES:
+        1. TIMESTAMP: The input only has Month/Day. You MUST add the year 2005. 
+        Format "time" exactly as: YYYY-MM-DD HH:MM:SS (e.g., "2005-06-14 15:16:01").
+        2. LEVEL: Map the log 'Level' or 'Component' to these numeric codes:
+            - notice/info/session/combo: 30
+            - alert/error/failure: 50
+        3. MSG: Combine the 'Component' and 'Content' columns into the "msg" field.
 
         Raw Logs:
         {raw_content}
