@@ -31,7 +31,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ````
 
-Deploy and Run (With make)
+Deploy and Run (With Makefile)
 ````
 make analyze
 ````
