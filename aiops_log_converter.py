@@ -57,11 +57,15 @@ def convert_logs_with_ai(input_file):
     # System prompt defines the rules for the AI
         prompt = f"""
         You are a log normalization assistant. Convert the following raw logs into a JSON Line format.
-        Each line must be a valid JSON object with these keys: 
-        - "time": Unix timestamp in milliseconds
-        - "level": Numeric (10=TRACE, 20=DEBUG, 30=INFO, 40=WARN, 50=ERROR)
-        - "msg": The log message text
-    
+        Each line MUST be a valid JSON object with the keys: "time", "level", and "msg".
+
+        CRITICAL MAPPING RULES for "level":
+        - If the log is TRACE/DEBUG: use 10 or 20
+        - If the log is INFO/SUCCESS/OK: use 30
+        - If the log is WARNING/NOTICE: use 40
+        - If the log is ERROR/FAILURE/CRITICAL: use 50
+        - If the log is FATAL/EMERGENCY: use 60
+
         Raw Logs:
         {raw_content}
         """
