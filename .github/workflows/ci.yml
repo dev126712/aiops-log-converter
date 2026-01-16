@@ -57,7 +57,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t $(IMAGE_NAME):$(VERSION) .
+          docker build -t ${{ IMAGE_NAME }}:${{ VERSION }} .
 
       - name: Tag and push
         run: |
