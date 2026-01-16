@@ -65,6 +65,12 @@ def convert_logs_with_ai(input_file):
         - If the log is WARNING/NOTICE: use 40
         - If the log is ERROR/FAILURE/CRITICAL: use 50
         - If the log is FATAL/EMERGENCY: use 60
+        1. The input logs have Month and Date but NO YEAR. Please assume the year is 2005 
+        and format the "time" as 'YYYY-MM-DD HH:MM:SS'.
+        2. Map the "Level" column to these numbers:
+        - notice/combo/info -> 30
+        - error/alert -> 50
+        - failure -> 50
 
         Raw Logs:
         {raw_content}
