@@ -13,11 +13,16 @@ Prerequisites
 - Slack Webhook URL
 - Makefile (Optional)
 
+Make sure to change the log file name in .env and Makefile
 .env (In root directory)
 ````
 GEMINI_API_KEY=your_api_key_here
 SLACK_URL=your_slack_webhook_url_here
 LOG_FILE_NAME=app.log
+````
+Makefile
+````
+LOG_NAME ?= raw_logs.txt
 ````
 
 Local Development (venv):
