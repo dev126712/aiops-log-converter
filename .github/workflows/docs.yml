@@ -1,0 +1,21 @@
+name: Publish Documentation
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install documentation tools
+        run: |
+          pip install mkdocs-material mkdocstrings[python]
+      
+      - name: Build and Deploy to GitHub Pages
+        run: mkdocs gh-deploy --force
