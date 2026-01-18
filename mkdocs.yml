@@ -1,0 +1,16 @@
+site_name: AI Log Analyzer
+theme:
+  name: material  # This uses the high-end "Material" theme we installed in the workflow
+
+plugins:
+  - search
+  - mkdocstrings: # This automatically pulls documentation from your Python docstrings
+      handlers:
+        python:
+          setup_commands:
+            - import sys
+            - sys.path.append('.')
+
+nav:
+  - Home: index.md
+  - Technical Reference: reference.md
