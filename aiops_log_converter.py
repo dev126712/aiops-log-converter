@@ -153,8 +153,9 @@ def load_and_parse_logs(input_source, is_raw_string=False):
 
 
 def preprocess_data(df):
+    print(f"DEBUG: Current columns are: {df.columns.tolist()}")
     # Your JSON logs use Unix timestamps (milliseconds), so we update the unit
-    df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
+    df["timestamp"] = pd.to_datetime(df["time"], errors='coerce')
     df_clean = df.dropna(subset=["timestamp"]).copy()
     df_clean["level_score"] = df_clean["level"].replace(LEVEL_MAPPING).fillna(1)
     df_clean["message_length"] = df_clean["message"].apply(len)
