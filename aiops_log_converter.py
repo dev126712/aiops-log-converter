@@ -54,7 +54,6 @@ def convert_logs_with_ai(input_file):
 
         print("🤖 AI is restructuring your logs... please wait.")
 
-    # System prompt defines the rules for the AI
         SYSTEM_INSTRUCTION = """
         
         You are an expert DevOps SRE "log normalization expert". Convert raw logs into a standardized JSON format.
@@ -108,7 +107,6 @@ def convert_logs_with_ai(input_file):
 
         structured_data = response.text
         
-        # Clean up any markdown code blocks if the AI ignored the prompt instructions
         structured_data = structured_data.replace('```json', '').replace('```', '').strip()
         
         print(f"✅ AI Conversion Complete.")
@@ -245,7 +243,6 @@ def main():
         if not anomalies.empty:
             send_slack_alert(len(anomalies), anomalies)
 
-        #generate_report(df_final)
     else:
         print(f"❌ ERROR: Log file {LOG_FILE_PATH} does not exist.")
         return  
