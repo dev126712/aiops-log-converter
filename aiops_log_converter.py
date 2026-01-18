@@ -160,13 +160,6 @@ def generate_report(df):
     plt.savefig('anomaly_report.png')
     print("\n📈 Graph saved successfully as 'anomaly_report.png'")
 
-def trigger_alert(anomaly_count):
-    if anomaly_count > 0:
-        msg = f"AIOps ALERT: {anomaly_count} anomalies detected in system logs!"
-        print(f"\n🔔 SENDING NOTIFICATION: {msg}")
-
-        os.system(f'notify-send "AIOps Alert" "{msg}"')
-
 def send_slack_alert(anomaly_count, anomalies_df):
     if not SLACK_WEBHOOK_URL:
         print("ℹ️ SLACK_URL not set. Skipping Slack notification.")
@@ -226,7 +219,6 @@ def main():
         df_final = detect_anomalies(df_clean, contamination)
         anomalies = df_final[df_final["anomaly_code"] == -1]
         if not anomalies.empty:
-            #trigger_alert(len(anomalies))
             send_slack_alert(len(anomalies), anomalies)
 
         #generate_report(df_final)
