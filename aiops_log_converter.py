@@ -119,43 +119,36 @@ def convert_logs_with_ai(input_file):
 
 
 def load_and_parse_logs(input_source, is_raw_string=False):
-    data = []
+   try:
+        # 1. Load the data
+        if is_raw_string:
+            # AI returns a single string containing a full JSON list
+            data_list = json.loads(input_source)
+        else:
+            with open(input_source, "r") as f:
+                data_list = json.load(f)
 
+        # 2. Convert directly to DataFrame
+        # Ensure the keys in the AI JSON match these column names
+        df = pd.DataFrame(data_list)
 
-    if is_raw_string:
-        log_source = io.StringIO(input_source)
-    else:
-        if not os.path.exists(linput_source):
-            print(f"❌ ERROR: File {input_source} not found.")
+        if df.empty:
+            print("❌ ERROR: No logs found in the JSON structure.")
             return pd.DataFrame()
-        log_source = open(input_source, "r")
 
-    
-    try:
-        for line in log_source:
-            line = line.strip()
-            if not line or not line.startswith('{'):
-                continue
-            
-            try:
-                log_entry = json.loads(line)
-                timestamp = log_entry.get("time")
-                level_num = log_entry.get("level", 30)
-                level = LEVEL_MAPPING.get(level_num, "INFO")
-                message = log_entry.get("msg") or log_entry.get("message", "")
+        # 3. Clean up column names to match the rest of your script
+        # If the AI uses 'timestamp', rename it to 'time' or vice versa
+        if "timestamp" in df.columns:
+            df = df.rename(columns={"timestamp": "time"})
+        if "message" in df.columns:
+            df = df.rename(columns={"message": "msg"})
 
-                if timestamp and message:
-                    data.append([timestamp, level, message])
-            except json.JSONDecodeError:
-                continue 
-    finally:
-        if not is_raw_string:
-            log_source.close()
+        print(f"✅ Successfully parsed {len(df)} logs.")
+        return df
 
-    df = pd.DataFrame(data, columns=["timestamp", "level", "message"])
-    if df.empty:
-        print("❌ ERROR: No logs found! Check if the file contains valid JSON.")
-    return df
+    except Exception as e:
+        print(f"❌ JSON Parsing Error: {e}")
+        return pd.DataFrame()
 
 
 def preprocess_data(df):
