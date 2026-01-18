@@ -1,0 +1,31 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 1. Scan your raw Python code logic
+      - name: Run Bandit (SAST)
+        run: |
+          pip install bandit
+          bandit -r . -ll -ii
+
+      # 2. Scan your requirements.txt for vulnerable libraries
+      - name: Run Safety (SCA)
+        run: |
+          pip install safety
+          safety check --file requirements.txt
