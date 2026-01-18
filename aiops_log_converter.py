@@ -55,7 +55,7 @@ def convert_logs_with_ai(input_file):
         print("🤖 AI is restructuring your logs... please wait.")
 
     # System prompt defines the rules for the AI
-        SYSTEM_INSTRUCTION = f"""
+        SYSTEM_INSTRUCTION = """
         
         You are an expert DevOps SRE "log normalization expert". Convert raw logs into a standardized JSON format.
         Strictly adhere to the following schema:
