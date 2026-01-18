@@ -20,6 +20,7 @@ from sklearn.ensemble import IsolationForest
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import time
 
 LOG_FILE_PATH = os.getenv("LOG_FILE_NAME")
 SLACK_WEBHOOK_URL = os.getenv("SLACK_URL")
@@ -40,80 +41,79 @@ def percent_to_decimal(CONTAMINATION_RATE):
     return CONTAMINATION_RATE / 100
 
 
-def convert_logs_with_ai(input_file):
-
-
+def convert_logs_with_ai(input_file, retries=3):
     client = genai.Client(api_key=GEMINI_KEY)
-    try:
-        with open(input_file, "r") as f:
-            raw_content = f.read()
+    for attempt in range(retries):
+        try:
+            with open(input_file, "r") as f:
+                raw_content = f.read()
 
-        if not raw_content.strip():
-            print("⚠️ Input file is empty. Skipping AI conversion.")
+            if not raw_content.strip():
+                print("⚠️ Input file is empty. Skipping AI conversion.")
+                return pd.DataFrame()
+
+            print("🤖 AI is restructuring your logs... please wait.")
+
+            SYSTEM_INSTRUCTION = """
+            
+            You are an expert DevOps SRE "log normalization expert". Convert raw logs into a standardized JSON format.
+            Strictly adhere to the following schema:
+
+            {
+                "timestamp": "ISO8601 string",
+                "level": "Integer (10:TRACE, 30:INFO, 40:WARN, 50:ERROR)",
+                "message": "Cleaned log message",
+                "source": "Component name"
+            }
+            """
+
+            FEW_SHOT_EXAMPLES = """
+            Input: 2026-01-18 09:22:31 [WEB] INFO: User login success
+            Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 30, "message": "User login success", "source": "WEB"}
+
+            Input: {"meta": {"sys": "DB"}, "text": "CRITICAL: Connection timeout", "t": 1737192151}
+            Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 50, "message": "Connection timeout", "source": "DB"}
+            Input: [2026-01-18T09:22:31Z] WARN - Cache miss for key user_123
+            Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 40, "message": "Cache miss for key user_123",
+
+            Raw Logs:
+            {raw_content}
+            """
+
+            response_schema = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "timestamp": {"type": "string"},
+                        "level": {"type": "integer"},
+                        "message": {"type": "string"},
+                        "source": {"type": "string"}
+                    },
+                    "required": ["timestamp", "level", "message", "source"]
+                }
+            }
+
+            response = client.models.generate_content(
+                model="gemini-flash-latest", 
+                contents=f"Convert these logs: {raw_content}",
+                config={
+                    "response_mime_type": "application/json",
+                    "response_schema": response_schema,
+                    "system_instruction": "You are a log normalization expert. Convert logs to structured JSON.",
+                    "temperature": 0  
+                }
+            )
+
+            structured_data = response.text
+            
+            structured_data = structured_data.replace('```json', '').replace('```', '').strip()
+            
+            print(f"✅ AI Conversion Complete.")
+            return load_and_parse_logs(structured_data, is_raw_string=True)
+        except Exception as e:
+            print(f"⚠️ AI Conversion Failed: {e}")
             return pd.DataFrame()
-
-        print("🤖 AI is restructuring your logs... please wait.")
-
-        SYSTEM_INSTRUCTION = """
-        
-        You are an expert DevOps SRE "log normalization expert". Convert raw logs into a standardized JSON format.
-        Strictly adhere to the following schema:
-
-        {
-            "timestamp": "ISO8601 string",
-            "level": "Integer (10:TRACE, 30:INFO, 40:WARN, 50:ERROR)",
-            "message": "Cleaned log message",
-            "source": "Component name"
-        }
-        """
-
-        FEW_SHOT_EXAMPLES = """
-        Input: 2026-01-18 09:22:31 [WEB] INFO: User login success
-        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 30, "message": "User login success", "source": "WEB"}
-
-        Input: {"meta": {"sys": "DB"}, "text": "CRITICAL: Connection timeout", "t": 1737192151}
-        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 50, "message": "Connection timeout", "source": "DB"}
-        Input: [2026-01-18T09:22:31Z] WARN - Cache miss for key user_123
-        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 40, "message": "Cache miss for key user_123",
-
-        Raw Logs:
-        {raw_content}
-        """
-
-        response_schema = {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "timestamp": {"type": "string"},
-                    "level": {"type": "integer"},
-                    "message": {"type": "string"},
-                    "source": {"type": "string"}
-                },
-                "required": ["timestamp", "level", "message", "source"]
-            }
-        }
-
-        response = client.models.generate_content(
-            model="gemini-flash-latest", 
-            contents=f"Convert these logs: {raw_content}",
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": response_schema,
-                "system_instruction": "You are a log normalization expert. Convert logs to structured JSON.",
-                "temperature": 0  
-            }
-        )
-
-        structured_data = response.text
-        
-        structured_data = structured_data.replace('```json', '').replace('```', '').strip()
-        
-        print(f"✅ AI Conversion Complete.")
-        return load_and_parse_logs(structured_data, is_raw_string=True)
-    except Exception as e:
-        print(f"⚠️ AI Conversion Failed: {e}")
-        return pd.DataFrame()
 
 
 def load_and_parse_logs(input_source, is_raw_string=False):
