@@ -96,7 +96,7 @@ def convert_logs_with_ai(input_file):
         }
 
         response = client.models.generate_content(
-            model="gemini-1.5-flash-latest", 
+            model="gemini-flash-latest", 
             contents=f"Convert these logs: {raw_content}",
             config={
                 "response_mime_type": "application/json",
