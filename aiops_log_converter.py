@@ -112,6 +112,11 @@ def convert_logs_with_ai(input_file, retries=3):
             print(f"✅ AI Conversion Complete.")
             return load_and_parse_logs(structured_data, is_raw_string=True)
         except Exception as e:
+            if "429" in str(e) and attempt < retries - 1:
+                wait_time = 60  # Wait 60 seconds based on your error message
+                print(f"⚠️ Quota hit. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
             print(f"⚠️ AI Conversion Failed: {e}")
             return pd.DataFrame()
 
