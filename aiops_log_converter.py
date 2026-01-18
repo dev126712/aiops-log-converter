@@ -55,26 +55,55 @@ def convert_logs_with_ai(input_file):
         print("🤖 AI is restructuring your logs... please wait.")
 
     # System prompt defines the rules for the AI
-        prompt = f"""
+        SYSTEM_INSTRUCTION = f"""
         
-        You are a log normalization expert. Convert the following CSV-style logs into JSON Lines.
-        Each line MUST be a valid JSON object with the keys: "time", "level", and "msg".
+        You are an expert DevOps SRE "log normalization expert". Convert raw logs into a standardized JSON format.
+        Strictly adhere to the following schema:
 
-        STRICT RULES:
-        1. TIMESTAMP: The input only has Month/Day. You MUST add the year 2005. 
-        Format "time" exactly as: YYYY-MM-DD HH:MM:SS (e.g., "2005-06-14 15:16:01").
-        2. LEVEL: Map the log 'Level' or 'Component' to these numeric codes:
-            - notice/info/session/combo: 30
-            - alert/error/failure: 50
-        3. MSG: Combine the 'Component' and 'Content' columns into the "msg" field.
+        {
+            "timestamp": "ISO8601 string",
+            "level": "Integer (10:TRACE, 30:INFO, 40:WARN, 50:ERROR)",
+            "message": "Cleaned log message",
+            "source": "Component name"
+        }
+        """
+
+        FEW_SHOT_EXAMPLES = """
+        Input: 2026-01-18 09:22:31 [WEB] INFO: User login success
+        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 30, "message": "User login success", "source": "WEB"}
+
+        Input: {"meta": {"sys": "DB"}, "text": "CRITICAL: Connection timeout", "t": 1737192151}
+        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 50, "message": "Connection timeout", "source": "DB"}
+        Input: [2026-01-18T09:22:31Z] WARN - Cache miss for key user_123
+        Output: {"timestamp": "2026-01-18T09:22:31Z", "level": 40, "message": "Cache miss for key user_123",
 
         Raw Logs:
         {raw_content}
         """
 
+        response_schema = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "timestamp": {"type": "string"},
+                    "level": {"type": "integer"},
+                    "message": {"type": "string"},
+                    "source": {"type": "string"}
+                },
+                "required": ["timestamp", "level", "message", "source"]
+            }
+        }
+
         response = client.models.generate_content(
-                model="gemini-flash-latest",
-                contents=prompt
+            model="gemini-1.5-flash", 
+            contents=f"Convert these logs: {raw_content}",
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": response_schema,
+                "system_instruction": "You are a log normalization expert. Convert logs to structured JSON.",
+                "temperature": 0  
+            }
         )
 
         structured_data = response.text
