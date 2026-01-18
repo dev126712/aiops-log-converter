@@ -7,9 +7,7 @@ plugins:
   - mkdocstrings: # This automatically pulls documentation from your Python docstrings
       handlers:
         python:
-          setup_commands:
-            - import sys
-            - sys.path.append('.')
+          paths: ["."]
 
 nav:
   - Home: index.md
