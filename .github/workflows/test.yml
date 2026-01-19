@@ -3,6 +3,12 @@ name: CI Log Validation
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - 'tests/logs/**'
+      
   pull_request:
     branches: [ main ]
 
