@@ -1,6 +1,8 @@
 # AIOps Log Converter & Anomaly Detector
 An automated pipeline that leverages Generative AI (Gemini 1.5 Flash) to normalize unstructured system logs and uses Machine Learning (Isolation Forest) to detect operational anomalies.
 
+![alt text](https://github.com/dev126712/aiops-log-converter/blob/e0a225e9a35b4cbd73352b7aedc23fa4422a2467/Untitled%20Diagram.drawio%20(2).png)
+
 Project Overview:
 - Ingestion: Raw, unstructured logs are placed in the project root as raw_logs.txt
 - AI Normalization: The Python engine calls the Google Gemini API to restructure messy text into standardized JSON Lines (LTSV/JSONL).
