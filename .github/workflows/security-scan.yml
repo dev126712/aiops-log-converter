@@ -3,6 +3,10 @@ name: Security Scan
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/security-scan.yml'
   pull_request:
     branches: [ main ]
 
