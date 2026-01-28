@@ -1,7 +1,7 @@
 ####################
 #
 # AI log converter & Anomaly Detector
-# Description: Analyzes system logs to detect anomalies using Isolation Forest.
+# Description: Convert raw logs into structured logs using Gemini(For Now) && Analyzes system logs to detect anomalies using Isolation Forest.
 # Author: Alexandre St-fort
 # Last modified: 01/15/26
 #
